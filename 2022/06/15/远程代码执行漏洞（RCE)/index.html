@@ -1,0 +1,239 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>远程代码执行 | Ho1L0w-By's Blog</title><meta name="keywords" content="RCE"><meta name="author" content="Ho1L0w-By"><meta name="copyright" content="Ho1L0w-By"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="远程代码执行漏洞（RCE)RCE英文全称：remote command&#x2F;code execute（远程命令&#x2F;代码执行漏洞） 分为远程命令执行ping和远程代码执行evel。 漏洞成因：命令执行漏洞形成的原因是web服务器对用户输入的命令安全监测不足，导致恶意代码被执行。 我们常见的路由器、防火墙、入侵检测等设备的web管理界面上一般会给用户提供一个ping操作的web界面，用户">
+<meta property="og:type" content="article">
+<meta property="og:title" content="远程代码执行">
+<meta property="og:url" content="https://ho1l0w-by.github.io/2022/06/15/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88RCE)/index.html">
+<meta property="og:site_name" content="Ho1L0w-By&#39;s Blog">
+<meta property="og:description" content="远程代码执行漏洞（RCE)RCE英文全称：remote command&#x2F;code execute（远程命令&#x2F;代码执行漏洞） 分为远程命令执行ping和远程代码执行evel。 漏洞成因：命令执行漏洞形成的原因是web服务器对用户输入的命令安全监测不足，导致恶意代码被执行。 我们常见的路由器、防火墙、入侵检测等设备的web管理界面上一般会给用户提供一个ping操作的web界面，用户">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ho1l0w-by.github.io/img/background.jpg">
+<meta property="article:published_time" content="2022-06-15T10:37:53.000Z">
+<meta property="article:modified_time" content="2022-07-05T12:57:42.080Z">
+<meta property="article:author" content="Ho1L0w-By">
+<meta property="article:tag" content="RCE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ho1l0w-by.github.io/img/background.jpg"><link rel="shortcut icon" href="/img/Myhead.jpg"><link rel="canonical" href="https://ho1l0w-by.github.io/2022/06/15/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88RCE)/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '远程代码执行',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-07-05 20:57:42'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/Myhead.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/%E4%B9%A6%E8%AF%84"><i class="fa-fw fa fa-book"></i><span> 书评</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/background.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ho1L0w-By's Blog</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/%E4%B9%A6%E8%AF%84"><i class="fa-fw fa fa-book"></i><span> 书评</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">远程代码执行</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-06-15T10:37:53.000Z" title="发表于 2022-06-15 18:37:53">2022-06-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-07-05T12:57:42.080Z" title="更新于 2022-07-05 20:57:42">2022-07-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E6%BC%8F%E6%B4%9E/">Web漏洞</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="远程代码执行"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="远程代码执行漏洞（RCE"><a href="#远程代码执行漏洞（RCE" class="headerlink" title="远程代码执行漏洞（RCE)"></a>远程代码执行漏洞（RCE)</h1><p><strong>RCE英文全称：remote command&#x2F;code execute（远程命令&#x2F;代码执行漏洞）</strong></p>
+<p>分为远程命令执行ping和远程代码执行evel。</p>
+<p>漏洞成因：命令执行漏洞形成的原因是web服务器对用户输入的命令安全监测不足，导致恶意代码被执行。</p>
+<p>我们常见的路由器、防火墙、入侵检测等设备的web管理界面上<br>一般会给用户提供一个ping操作的web界面，用户从web界面输入目标IP，提交后，后台会对该IP地址进行一次ping测试，并返回测试结果。其实这就是一个接口，可以让攻击者直接向后台服务器远程注入操作系统命令或者代码，从而控制后台系统，这就是RCE漏洞。相当于直接操控服务器电脑的cmd命令行！高危漏洞！</p>
+<p><strong>这里涉及到一个概念：ping</strong></p>
+<p>Ping是Windows、Unix和Linux系统下的一个命令。ping也属于一个通信协议，是TCP&#x2F;IP协议的一部分。利用“ping”命令可以检查网络是否连通，可以很好地帮助我们分析和判定网络故障。应用格式：ping空格IP地址</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220329113042498.png" alt="image-20220329113042498"></p>
+<p>对于ping指令的一些补充：</p>
+<p>当应用需要调用一些外部程序去处理内容的情况下，就会用到一些执行系统命令的函数。如PHP中的system，exec，shell_exec等，当用户可以控制命令执行函数中的参数时，将可注入恶意系统命令到正常命令中，造成命令执行攻击。</p>
+<p>这个其实也可以类比为eval($_POST[‘’])；这种情况，当不控制转入的参数的时候，就会被控制。</p>
+<h2 id="漏洞危害"><a href="#漏洞危害" class="headerlink" title="漏洞危害"></a>漏洞危害</h2><p>继承Web服务程序的权限去执行系统命令或读写文件<br> 反弹shell<br> 控制整个网站甚至控制服务器<br> 进一步内网渗透</p>
+<h1 id="PHP涉及函数"><a href="#PHP涉及函数" class="headerlink" title="PHP涉及函数"></a>PHP涉及函数</h1><h2 id="常见函数"><a href="#常见函数" class="headerlink" title="常见函数"></a>常见函数</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">isset()函数：用于检测变量是否已设置并且非 NULL。</span><br><span class="line">highlight_file()函数：对文件进行 PHP 语法高亮显示。语法通过使用 HTML 标签进行高亮。</span><br><span class="line">show_source()是 highlight_file() 的别名。</span><br><span class="line">eval()函数:用来执行一个字符串表达式，并返回表达式的值。</span><br><span class="line">next() 将内部指针指向数组中的下一个元素</span><br><span class="line">glob() 函数返回匹配指定模式的文件名或目录</span><br><span class="line">array_reverse()：将数组逆序排列</span><br><span class="line">array_rand(): 随机返回数组的键名</span><br><span class="line">array_flip()：交换数组的键和值</span><br><span class="line">session_start(): 告诉PHP使用session;</span><br><span class="line">session_id(): 获取到当前的session_id值；</span><br><span class="line">rev():将文件中的每行内容以字符为单位反序输出，即第一个字符最后输出，最后一个字符最先输出，依次类推。</span><br></pre></td></tr></table></figure>
+
+<h2 id="输出函数"><a href="#输出函数" class="headerlink" title="输出函数"></a>输出函数</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cat函数 由第一行开始显示内容，并将所有内容输出</span><br><span class="line">tac函数 从最后一行倒序显示内容，并将所有内容输出</span><br><span class="line">nl      类似于cat -n，显示时输出行号</span><br><span class="line">more    根据窗口大小，一页一页的现实文件内容</span><br><span class="line">less    和more类似，但其优点可以往前翻页，而且进行可以搜索字符</span><br><span class="line">head    只显示头几行</span><br><span class="line">tail    只显示最后几行</span><br></pre></td></tr></table></figure>
+
+<h2 id="命令执行函数"><a href="#命令执行函数" class="headerlink" title="命令执行函数"></a>命令执行函数</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">system() 输出并返回最后一行shell结果。</span><br><span class="line">exec() 不输出结果，返回最后一行shell结果，所有结果可以保存到一个返回的数组里面。</span><br><span class="line">passthru() 只调用命令，把命令的运行结果原样地直接输出到标准输出设备上。（替换system）</span><br></pre></td></tr></table></figure>
+
+<h2 id="获取文件内容函数"><a href="#获取文件内容函数" class="headerlink" title="获取文件内容函数"></a>获取文件内容函数</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pos()是current()的别名</span><br><span class="line">pos():返回数组中当前元素的值</span><br><span class="line">scandir()：函数返回一个数组，其中包含指定路径中的文件和目录(获取目录下的文件)</span><br><span class="line">localeconv()：返回一包含本地数字及货币格式信息的数组。其中数组中的第一个为点号(.)</span><br></pre></td></tr></table></figure>
+
+<h1 id="正则表达式："><a href="#正则表达式：" class="headerlink" title="正则表达式："></a>正则表达式：</h1><h3 id="元字符："><a href="#元字符：" class="headerlink" title="元字符："></a>元字符：</h3><p>1、**+**，+ 号代表前面的字符必须至少出现一次（1次或多次）。</p>
+<p>2、*****，* 号代表前面的字符可以不出现，也可以出现一次或者多次（0次、或1次、或多次）。</p>
+<p>3、<strong>？</strong>，? 问号代表前面的字符最多只可以出现一次（0次或1次）。</p>
+<p><strong>其中<code>+</code> <code>*</code>具有贪婪性，这两个元字符会尽可能多的匹配字符。如果希望实现最小匹配、或是非贪婪，可以使用？来限制。</strong></p>
+<h3 id="普通字符："><a href="#普通字符：" class="headerlink" title="普通字符："></a>普通字符：</h3><p>普通字符包括没有显式指定为元字符的所有可打印和不可打印字符。这包括所有大写和小写字母、所有数字、所有标点符号和一些其他符号。</p>
+<p><code>[ABC]  匹配括号中的所有字符。</code></p>
+<p><code>[^ABC]  匹配除了中括号中的所有字符</code></p>
+<p><code>[A-Z]  表示一个区间，其中匹配所有的大写字母（当然，也可以[A-z]匹配所有的大小写）</code></p>
+<p><code>.  匹配除了换行符之外的任何单个字符</code></p>
+<p><code>[\s\S]  匹配所有，\s是匹配所有空白符，包括换行符，\S是匹配所有非空白符，不包括换行。</code></p>
+<p><code>\w  匹配字母、数字、下划线</code></p>
+<h3 id="非打印字符："><a href="#非打印字符：" class="headerlink" title="非打印字符："></a>非打印字符：</h3><p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220329123107547.png" alt="image-20220329123107547"></p>
+<h3 id="特殊字符："><a href="#特殊字符：" class="headerlink" title="特殊字符："></a>特殊字符：</h3><p>许多元字符要求在试图匹配它们时特别对待。若要匹配这些特殊字符，必须首先使字符”转义”，即，将反斜杠字符\ 放在它们前面。下表列出了正则表达式中的特殊字符：</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220330191040233.png" alt="image-20220330191040233"></p>
+<h3 id="限定符："><a href="#限定符：" class="headerlink" title="限定符："></a>限定符：</h3><p>限定符用来指定正则表达式的一个给定组件必须要出现多少次才能满足匹配。有 * 或 + 或 ? 或 {n} 或 {n,} 或 {n,m} 共6种。</p>
+<p>正则表达式的限定符有：</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220330191139231.png" alt="image-20220330191139231"></p>
+<h3 id="定位符："><a href="#定位符：" class="headerlink" title="定位符："></a>定位符：</h3><p>定位符使您能够将正则表达式固定到行首或行尾。它们还使您能够创建这样的正则表达式，这些正则表达式出现在一个单词内、在一个单词的开头或者一个单词的结尾。</p>
+<p>定位符用来描述字符串或单词的边界，^ 和 $ 分别指字符串的开始与结束，\b 描述单词的前或后边界，\B 表示非单词边界。</p>
+<p>正则表达式的定位符有：</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220330200551984.png" alt="image-20220330200551984"></p>
+<p>不能将限定符和定位符一起使用，因为在紧靠换行或者单词边界的前面或者后面不能有一个以上的位置（？）</p>
+<p>所以不能使用<code>^*</code>这种形式的表达式。</p>
+<p>如果要匹配一行文本开始的地方的文本，要在正则表达式的开始使用^字符。</p>
+<p><strong>单词边界是单词和空格之间的位置。非单词边界是任何其他位置。</strong></p>
+<p>\b 字符的位置是非常重要的。如果它位于要匹配的字符串的开始，它在单词的开始处查找匹配项。如果它位于字符串的结尾，它在单词的结尾处查找匹配项。</p>
+<p>字符串 apt 出现在单词 Chapter 中的非单词边界处，但出现在单词 aptitude 中的单词边界处。对于 \B 非单词边界运算符，不可以匹配单词的开头或结尾。</p>
+<p>这两个东西比较重要的作用就是可以标识想要匹配的字符串到底是在一个单词的开头还是中间，或是结尾。通过对部分字符串的位置进行标识，可以做到对匹配进行过滤。</p>
+<p>eg:</p>
+<p>可以只匹配 Chapter 中的字符串 apt，但不匹配 aptitude 中的字符串 apt。</p>
+<h3 id="反向引用："><a href="#反向引用：" class="headerlink" title="反向引用："></a>反向引用：</h3><p>对一个正则表达式模式或部分模式两边添加圆括号将导致相关匹配存储到一个临时缓冲区中，所捕获的每个子匹配都按照在正则表达式模式中从左到右出现的顺序存储。</p>
+<p>缓冲区编号从 1 开始，最多可存储 99 个捕获的子表达式。每个缓冲区都可以使用 \n 访问，其中 n 为一个标识特定缓冲区的一位或两位十进制数。</p>
+<p>可以使用非捕获元字符<code> ?:</code>、<code>?= </code>或 <code>?!</code> 来重写捕获，忽略对相关匹配的保存。 </p>
+<p>基本应该就是引用其中一段的匹配式。</p>
+<h3 id="修饰符："><a href="#修饰符：" class="headerlink" title="修饰符："></a>修饰符：</h3><p>标记也称为修饰符，正则表达式的标记用于指定额外的匹配策略。</p>
+<p>标记不写在正则表达式里，标记位于表达式之外，格式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/pattern/flags</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220330211825418.png" alt="image-20220330211825418"></p>
+<h3 id="元字符：-1"><a href="#元字符：-1" class="headerlink" title="元字符："></a>元字符：</h3><p><a target="_blank" rel="noopener" href="https://www.runoob.com/regexp/regexp-metachar.html">https://www.runoob.com/regexp/regexp-metachar.html</a></p>
+<h3 id="使用："><a href="#使用：" class="headerlink" title="使用："></a>使用：</h3><p>在Linux中，通配符?表示匹配单个字符。</p>
+<p>这个就和之前表示的不一样了，需要特别看一下。</p>
+<blockquote>
+<p>\i 与大小写都进行匹配<br> \w 与任意单词字符匹配，任意单词字符表示 [A-Z]、 [a-z]、[0-9]、_<br> \d 与任意数字匹配</p>
+</blockquote>
+<p>上面这部分可以直接看元字符</p>
+<h2 id="Windows环境下的管道符："><a href="#Windows环境下的管道符：" class="headerlink" title="Windows环境下的管道符："></a>Windows环境下的管道符：</h2><p>1、<code>|</code>，表示直接执行后面的语句。</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220330213250836.png" alt="image-20220330213250836"></p>
+<p>直接执行了后面的whoami语句。</p>
+<p>2、<code>||</code>，如果前面执行的语句出错（包括但不限于命令语句出错或者是后面的语句部分出错），就执行后面的语句。</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220330213427396.png" alt="image-20220330213427396"></p>
+<p>3、<code>&amp;</code>，如果前面的语句为假则直接执行后面的语句，前面的语句可真可假。</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220401235516607.png" alt="image-20220401235516607"></p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220401235642058.png" alt="image-20220401235642058"></p>
+<p>4、<code>&amp;&amp;</code>，如果前面的语句为真，则先执行第一个命令，后执行第二个命令。如果为假，就两个都不执行。</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220401235819393.png" alt="image-20220401235819393"></p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/image-20220401235925143.png" alt="image-20220401235925143"></p>
+<h2 id="Linux环境下的管道符："><a href="#Linux环境下的管道符：" class="headerlink" title="Linux环境下的管道符："></a>Linux环境下的管道符：</h2><p>1、<code>;</code>当执行完了前面的命令之后，就执行后面的。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ping www.baidu.com;whoami</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/1600512054_5f65e0364695687b45fad.png!small" alt="1600512054_5f65e0364695687b45fad.png!small"></p>
+<p>2、<code>|</code>，只显示后面语句的执行结果</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ping www.baidu.com|whoami</span><br></pre></td></tr></table></figure>
+
+<p>3、<code>||</code>，当前面的语句执行错误的时候，会执行后面的语句。</p>
+<p><img src="https://gitee.com/Ho1L0w-By/picgo-drawing-bed/raw/master/1600512086_5f65e056a06ea92ce6174.png!small" alt="1600512086_5f65e056a06ea92ce6174.png!small"></p>
+<p>4、<code>&amp;</code>，如果前面的语句为假，则直接指向后面的语句，前面的语句可真可假</p>
+<h2 id="无数字字母构造webshell："><a href="#无数字字母构造webshell：" class="headerlink" title="无数字字母构造webshell："></a>无数字字母构造webshell：</h2><p>当对输入进行了过滤之后，可以通过运算和拼接的方式来得到需要的字母或是数字。</p>
+<p>常见的运算方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1、异或运算</span><br><span class="line">2、按位与运算</span><br><span class="line">3、按位或运算</span><br></pre></td></tr></table></figure>
+
+<p>例如在PHP中，当将两个变量的值进行异或的时候，会首先将两个变量的值转换为ascii，然后再将ascii进行二进制转换，之后再将两个变量进行异或，后将异或结果转换为ascii，将ascii转换为字符串。。</p>
+<p>（这种PHP中的绕过方式其实是很常见的。）</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">两个变量-&gt;转换为ascii-&gt;转换为二进制-&gt;进行异或-&gt;异或二进制转换为ascii-&gt;转换为字符串。</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://Ho1L0w-By.github.io">Ho1L0w-By</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ho1l0w-by.github.io/2022/06/15/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88RCE)/">https://ho1l0w-by.github.io/2022/06/15/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88RCE)/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://Ho1L0w-By.github.io" target="_blank">Ho1L0w-By's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/RCE/">RCE</a></div><div class="post_share"><div class="social-share" data-image="/img/background.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/function%20link()%20%7B%20%5Bnative%20code%5D%20%7D" target="_blank"><img class="post-qr-code-img" src="/"/></a><div class="post-qr-code-desc"></div></li><li class="reward-item"><a href="/function%20link()%20%7B%20%5Bnative%20code%5D%20%7D" target="_blank"><img class="post-qr-code-img" src="/"/></a><div class="post-qr-code-desc"></div></li><li class="reward-item"><a href="/function%20link()%20%7B%20%5Bnative%20code%5D%20%7D" target="_blank"><img class="post-qr-code-img" src="/"/></a><div class="post-qr-code-desc"></div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/06/15/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9A/"><img class="prev-cover" src="/img/background.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">PHP反序列化</div></div></a></div><div class="next-post pull-right"><a href="/2022/06/15/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%EF%BC%9A/"><img class="next-cover" src="/img/background.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">文件包含</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/Myhead.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Ho1L0w-By</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Ho1L0w-By"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/Ho1L0w-By" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:1691834629@qq.com" target="_blank" title="Email"><i class="fab fa-qq"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">主攻Web安全，D0g3成员 QQ:1691834629</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88RCE"><span class="toc-number">1.</span> <span class="toc-text">远程代码执行漏洞（RCE)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8D%B1%E5%AE%B3"><span class="toc-number">1.1.</span> <span class="toc-text">漏洞危害</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PHP%E6%B6%89%E5%8F%8A%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">PHP涉及函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.</span> <span class="toc-text">常见函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BE%93%E5%87%BA%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">输出函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0"><span class="toc-number">2.3.</span> <span class="toc-text">命令执行函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E5%87%BD%E6%95%B0"><span class="toc-number">2.4.</span> <span class="toc-text">获取文件内容函数</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">正则表达式：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%83%E5%AD%97%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.0.1.</span> <span class="toc-text">元字符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%99%AE%E9%80%9A%E5%AD%97%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.0.2.</span> <span class="toc-text">普通字符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E6%89%93%E5%8D%B0%E5%AD%97%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.0.3.</span> <span class="toc-text">非打印字符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.0.4.</span> <span class="toc-text">特殊字符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%90%E5%AE%9A%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.0.5.</span> <span class="toc-text">限定符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E4%BD%8D%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.0.6.</span> <span class="toc-text">定位符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%90%91%E5%BC%95%E7%94%A8%EF%BC%9A"><span class="toc-number">3.0.7.</span> <span class="toc-text">反向引用：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E9%A5%B0%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.0.8.</span> <span class="toc-text">修饰符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%83%E5%AD%97%E7%AC%A6%EF%BC%9A-1"><span class="toc-number">3.0.9.</span> <span class="toc-text">元字符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%EF%BC%9A"><span class="toc-number">3.0.10.</span> <span class="toc-text">使用：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E7%AE%A1%E9%81%93%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.1.</span> <span class="toc-text">Windows环境下的管道符：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E7%AE%A1%E9%81%93%E7%AC%A6%EF%BC%9A"><span class="toc-number">3.2.</span> <span class="toc-text">Linux环境下的管道符：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E6%95%B0%E5%AD%97%E5%AD%97%E6%AF%8D%E6%9E%84%E9%80%A0webshell%EF%BC%9A"><span class="toc-number">3.3.</span> <span class="toc-text">无数字字母构造webshell：</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/06/17/guzhenren/" title="《蛊真人》——小人物的坚持"><img src="/img/background.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="《蛊真人》——小人物的坚持"/></a><div class="content"><a class="title" href="/2022/06/17/guzhenren/" title="《蛊真人》——小人物的坚持">《蛊真人》——小人物的坚持</a><time datetime="2022-06-17T14:58:40.000Z" title="发表于 2022-06-17 22:58:40">2022-06-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/06/15/hello/" title="Hello,World!"><img src="/img/background.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello,World!"/></a><div class="content"><a class="title" href="/2022/06/15/hello/" title="Hello,World!">Hello,World!</a><time datetime="2022-06-15T10:37:53.000Z" title="发表于 2022-06-15 18:37:53">2022-06-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/06/15/SSRF(%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0)%E6%BC%8F%E6%B4%9E%EF%BC%9A/" title="SSRF(服务器端请求伪造)漏洞"><img src="/img/background.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SSRF(服务器端请求伪造)漏洞"/></a><div class="content"><a class="title" href="/2022/06/15/SSRF(%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0)%E6%BC%8F%E6%B4%9E%EF%BC%9A/" title="SSRF(服务器端请求伪造)漏洞">SSRF(服务器端请求伪造)漏洞</a><time datetime="2022-06-15T10:37:53.000Z" title="发表于 2022-06-15 18:37:53">2022-06-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/06/15/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9A/" title="PHP反序列化"><img src="/img/background.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PHP反序列化"/></a><div class="content"><a class="title" href="/2022/06/15/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9A/" title="PHP反序列化">PHP反序列化</a><time datetime="2022-06-15T10:37:53.000Z" title="发表于 2022-06-15 18:37:53">2022-06-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/06/15/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88RCE)/" title="远程代码执行"><img src="/img/background.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="远程代码执行"/></a><div class="content"><a class="title" href="/2022/06/15/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88RCE)/" title="远程代码执行">远程代码执行</a><time datetime="2022-06-15T10:37:53.000Z" title="发表于 2022-06-15 18:37:53">2022-06-15</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Ho1L0w-By</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hack For Fun</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
